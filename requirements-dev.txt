@@ -40,7 +40,7 @@ docutils==0.17.1
     #   sphinx
 exceptiongroup==1.0.0rc9
     # via hypothesis
-flake8==5.0.4
+flake8==4.0.1
     # via -r requirements-dev.in
 hypothesis==6.54.4
     # via -r requirements-test.in
@@ -62,7 +62,7 @@ lazy-object-proxy==1.7.1
     # via astroid
 markupsafe==2.1.1
     # via jinja2
-mccabe==0.7.0
+mccabe==0.6.1
     # via
     #   flake8
     #   pylint
@@ -84,11 +84,11 @@ pluggy==1.0.0
     # via pytest
 py==1.11.0
     # via pytest
-pycodestyle==2.9.1
+pycodestyle==2.8.0
     # via flake8
 pydocstyle==6.1.1
     # via -r requirements-dev.in
-pyflakes==2.5.0
+pyflakes==2.4.0
     # via flake8
 pygments==2.13.0
     # via

@@ -240,6 +240,7 @@ class SAMTemplateGenerator(TemplateGenerator):
             'Type': 'AWS::Serverless::Function',
             'Properties': {
                 'Runtime': resource.runtime,
+                'Architectures': [resource.arch],
                 'Handler': resource.handler,
                 'CodeUri': resource.deployment_package.filename,
                 'Tags': resource.tags,
@@ -1242,6 +1243,7 @@ class TerraformGenerator(TemplateGenerator):
             'function_name': resource.function_name,
             'runtime': resource.runtime,
             'handler': resource.handler,
+            'arch': resource.arch,
             'memory_size': resource.memory_size,
             'tags': resource.tags,
             'timeout': resource.timeout,

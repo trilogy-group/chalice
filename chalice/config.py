@@ -115,6 +115,10 @@ class Config(object):
         return self._chain_lookup('app_name')
 
     @property
+    def arch(self) -> str:
+        return self._chain_lookup('arch')
+
+    @property
     def project_dir(self) -> str:
         return self._chain_lookup('project_dir')
 

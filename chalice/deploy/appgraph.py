@@ -565,6 +565,7 @@ class ApplicationGraphBuilder(object):
             runtime=config.lambda_python_version,
             handler=handler_name,
             tags=config.tags,
+            arch=config.arch,
             timeout=config.lambda_timeout,
             memory_size=config.lambda_memory_size,
             deployment_package=deployment,

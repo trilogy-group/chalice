@@ -395,6 +395,7 @@ class TypedAWSClient(object):
         environment_variables: Optional[StrMap] = None,
         tags: Optional[StrMap] = None,
         xray: Optional[bool] = None,
+        arch: OptStr = None,
         timeout: OptInt = None,
         memory_size: OptInt = None,
         security_group_ids: OptStrList = None,
@@ -415,6 +416,8 @@ class TypedAWSClient(object):
             kwargs['Tags'] = tags
         if xray is True:
             kwargs['TracingConfig'] = {'Mode': 'Active'}
+        if arch is not None:
+            kwargs['Architectures'] = [arch]
         if timeout is not None:
             kwargs['Timeout'] = timeout
         if memory_size is not None:
@@ -900,6 +903,7 @@ class TypedAWSClient(object):
         runtime: OptStr = None,
         tags: Optional[StrMap] = None,
         xray: Optional[bool] = None,
+        arch: OptStr = None,
         timeout: OptInt = None,
         memory_size: OptInt = None,
         role_arn: OptStr = None,
@@ -914,7 +918,7 @@ class TypedAWSClient(object):
         the targeted lambda function.
         """
         return_value = self._update_function_code(
-            function_name=function_name, zip_contents=zip_contents
+            function_name=function_name, zip_contents=zip_contents, arch=arch
         )
         self._update_function_config(
             environment_variables=environment_variables,
@@ -933,12 +937,12 @@ class TypedAWSClient(object):
         return return_value
 
     def _update_function_code(
-        self, function_name: str, zip_contents: str
+        self, function_name: str, zip_contents: str, arch:str
     ) -> Dict[str, Any]:
         lambda_client = self._client('lambda')
         try:
             result = lambda_client.update_function_code(
-                FunctionName=function_name, ZipFile=zip_contents
+                FunctionName=function_name, ZipFile=zip_contents, Architectures=[arch]
             )
         except _REMOTE_CALL_ERRORS as e:
             context = LambdaErrorContext(

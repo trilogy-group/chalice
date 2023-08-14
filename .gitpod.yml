@@ -1,0 +1,26 @@
+tasks:
+  - name: Setup Project
+    init: |
+      pip install pip -U
+      pip install -r requirements-dev.txt
+      pip install -r requirements-test.txt
+  - name: Saml configure and login
+    init: |
+      (
+        set -e
+        eval $(gp env -e)
+        CURRENT_VERSION=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1)
+        wget -c https://github.com/Versent/saml2aws/releases/download/v${CURRENT_VERSION}/saml2aws_${CURRENT_VERSION}_linux_arm64.tar.gz -O - | tar -xzv -C ~/.local/bin
+        chmod u+x ~/.local/bin/saml2aws
+        hash -r
+        saml2aws --version
+        export SAML2AWS_PROFILE="default"
+        read -p "Enter AD: " AD_USERNAME
+        saml2aws configure --idp-provider KeyCloak --username $AD_USERNAME --mfa Auto \
+        --url https://devfactory.devconnect-df.com/auth/realms/devfactory/protocol/saml/clients/aws --skip-prompt
+      )
+    command: |
+      (
+        read -p "Enter Password: " AD_PASSWORD
+        saml2aws login --password=$AD_PASSWORD --skip-prompt --session-duration=43200 --role=arn:aws:iam::280022023954:role/RAM-AWS-Dev-Codenation-TrilogyUniversity-PowerUser --force
+      )

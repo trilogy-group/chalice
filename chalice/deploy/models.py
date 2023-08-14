@@ -194,6 +194,7 @@ class LambdaFunction(ManagedModel):
     runtime: str
     handler: str
     tags: StrMap
+    arch: str
     timeout: int
     memory_size: int
     role: IAMRole

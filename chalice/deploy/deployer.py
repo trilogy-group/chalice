@@ -101,6 +101,7 @@ from chalice.awsclient import AWSClientError
 from chalice.awsclient import TypedAWSClient
 from chalice.constants import MAX_LAMBDA_DEPLOYMENT_SIZE
 from chalice.constants import VPC_ATTACH_POLICY
+from chalice.constants import DEFAULT_ARCH
 from chalice.constants import DEFAULT_LAMBDA_TIMEOUT
 from chalice.constants import DEFAULT_LAMBDA_MEMORY_SIZE
 from chalice.constants import DEFAULT_TLS_VERSION
@@ -420,16 +421,20 @@ class BaseDeployStep(object):
 
 
 class InjectDefaults(BaseDeployStep):
-    def __init__(self, lambda_timeout=DEFAULT_LAMBDA_TIMEOUT,
+    def __init__(self, lambda_arch=DEFAULT_ARCH,
+                 lambda_timeout=DEFAULT_LAMBDA_TIMEOUT,
                  lambda_memory_size=DEFAULT_LAMBDA_MEMORY_SIZE,
                  tls_version=DEFAULT_TLS_VERSION):
-        # type: (int, int, str) -> None
+        # type: (str, int, int, str) -> None
+        self._lambda_arch = lambda_arch
         self._lambda_timeout = lambda_timeout
         self._lambda_memory_size = lambda_memory_size
-        self._tls_version = DEFAULT_TLS_VERSION
+        self._tls_version = tls_version
 
     def handle_lambdafunction(self, config, resource):
         # type: (Config, models.LambdaFunction) -> None
+        if resource.arch is None:
+            resource.arch = self._lambda_arch
         if resource.timeout is None:
             resource.timeout = self._lambda_timeout
         if resource.memory_size is None:
@@ -439,7 +444,7 @@ class InjectDefaults(BaseDeployStep):
         # type: (Config, models.DomainName) -> None
         if resource.tls_version is None:
             resource.tls_version = models.TLSVersion.create(
-                DEFAULT_TLS_VERSION)
+                self._tls_version)
 
 
 class DeploymentPackager(BaseDeployStep):
@@ -451,7 +456,7 @@ class DeploymentPackager(BaseDeployStep):
         # type: (Config, models.DeploymentPackage) -> None
         if isinstance(resource.filename, models.Placeholder):
             zip_filename = self._packager.create_deployment_package(
-                config.project_dir, config.lambda_python_version)
+                config.project_dir, config.lambda_python_version, config.arch)
             resource.filename = zip_filename
 
 
@@ -472,7 +477,7 @@ class ManagedLayerDeploymentPackager(BaseDeployStep):
         if isinstance(resource.deployment_package.filename,
                       models.Placeholder):
             zip_filename = self._lambda_packager.create_deployment_package(
-                config.project_dir, config.lambda_python_version
+                config.project_dir, config.lambda_python_version, config.arch
             )
             resource.deployment_package.filename = zip_filename
         if resource.managed_layer is not None and \
@@ -489,7 +494,7 @@ class ManagedLayerDeploymentPackager(BaseDeployStep):
                       models.Placeholder):
             try:
                 zip_filename = self._layer_packager.create_deployment_package(
-                    config.project_dir, config.lambda_python_version
+                    config.project_dir, config.lambda_python_version, config.arch
                 )
                 resource.deployment_package.filename = zip_filename
             except EmptyPackageError:
